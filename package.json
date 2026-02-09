@@ -8,18 +8,31 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "prisma:seed": "prisma db seed",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.87",
     "@iconify-json/simple-icons": "^1.2.68",
     "@nuxt/ui": "^4.4.0",
+    "@nuxtjs/i18n": "^10.2.3",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "bcrypt": "^6.0.0",
+    "chart.js": "^4.5.1",
+    "dotenv": "^17.2.4",
     "nuxt": "^4.3.0",
-    "tailwindcss": "^4.1.18"
+    "nuxt-auth-utils": "^0.5.28",
+    "prisma": "^7.3.0",
+    "tailwindcss": "^4.1.18",
+    "vue-chartjs": "^5.3.3"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.13.0",
+    "@types/bcrypt": "^6.0.0",
     "eslint": "^9.39.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.4"
   },
