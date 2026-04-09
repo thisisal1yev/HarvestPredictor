@@ -47,6 +47,12 @@ const links = computed<NavigationMenuItem[][]>(() => {
       to: "/dashboard/alerts",
       onSelect: () => (open.value = false),
     },
+    {
+      label: t("nav.detection"),
+      icon: "i-lucide-scan-eye",
+      to: "/dashboard/detection",
+      onSelect: () => (open.value = false),
+    },
   ];
 
   const secondaryLinks: NavigationMenuItem[] = [

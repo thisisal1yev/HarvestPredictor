@@ -11,6 +11,7 @@
     "analytics": "Analitika",
     "recommendations": "Tavsiyalar",
     "alerts": "Ogohlantirishlar",
+    "detection": "Detection",
     "feedback": "Fikr-mulohaza",
     "support": "Yordam",
     "admin": "Admin",
@@ -174,6 +175,74 @@
     "predictedYield": "Bashorat qilingan hosil",
     "confidence": "Ishonchlilik",
     "modelVersion": "Model versiyasi"
+  },
+  "detection": {
+    "_TODO_translate": true,
+    "title": "Detection",
+    "detailTreatment": "Treatment",
+    "tabs": {
+      "models": "Models",
+      "connections": "Connections",
+      "detections": "Detections"
+    },
+    "models": {
+      "upload": "Upload model",
+      "try": "Try",
+      "noModels": "No models yet. Upload your first ONNX model.",
+      "deleteBlocked": "This model is in use by {n} connection(s). Stop and delete them first.",
+      "form": {
+        "name": "Name",
+        "cropType": "Crop type",
+        "file": "ONNX file"
+      },
+      "quickTest": {
+        "title": "Quick test",
+        "drop": "Drop an image here or click to select",
+        "noDetections": "No detections found",
+        "rateLimit": "Quick test rate limit reached. Try again in a minute."
+      }
+    },
+    "connections": {
+      "create": "Create connection",
+      "start": "Start",
+      "stop": "Stop",
+      "test": "Test connection",
+      "testOk": "Connection successful",
+      "testFail": "Connection failed",
+      "limitReached": "Stream limit reached. Stop another connection first.",
+      "alreadyActive": "Connection is already active.",
+      "status": {
+        "idle": "Idle",
+        "active": "Active",
+        "disconnected": "Disconnected",
+        "error": "Error"
+      },
+      "form": {
+        "name": "Name",
+        "protocol": "Protocol",
+        "streamUrl": "Stream URL",
+        "username": "Username",
+        "password": "Password",
+        "model": "Model",
+        "field": "Field (optional)"
+      }
+    },
+    "detections": {
+      "empty": "No detections yet.",
+      "thumbPending": "Thumbnail processing…",
+      "filters": {
+        "connection": "Connection",
+        "class": "Class",
+        "severity": "Severity",
+        "dateFrom": "From",
+        "dateTo": "To"
+      },
+      "severity": {
+        "confirmed": "Confirmed",
+        "likely": "Likely",
+        "possible": "Possible"
+      }
+    }
   },
   "auth": {
     "login": "Kirish",
