@@ -1,0 +1,8 @@
+# Maps YOLO class name -> category (disease | pest | weed).
+# Unknown classes fall back to "disease" per spec §16.
+
+fusarium: disease
+alternaria: disease
+root_rot: disease
+spider_mite: pest
+aphid: pest
