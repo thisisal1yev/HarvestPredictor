@@ -24,3 +24,20 @@ logs
 !.env.example
 
 /generated
+
+# CV Service
+cv-service/__pycache__/
+cv-service/.venv/
+cv-service/.env
+cv-service/uploads/*
+!cv-service/uploads/.gitkeep
+cv-service/detections/*
+!cv-service/detections/.gitkeep
+cv-service/ml_models/*.onnx
+cv-service/app/__pycache__/
+cv-service/app/**/__pycache__/
+
+# Local tool directories (not part of the project)
+.agents/
+.claude/
+.omc/
