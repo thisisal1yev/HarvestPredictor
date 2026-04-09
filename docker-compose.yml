@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_SERVER_URL=${PUBLIC_URL}
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+    # No host port published — only nginx talks to MinIO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+
+  cv-service:
+    build: ./cv-service
+    environment:
+      - CV_API_KEY=${CV_API_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - MODEL_DIR=/app/ml_models
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - NUXT_INTERNAL_URL=http://nuxt:3000
+      - MAX_CONCURRENT_STREAMS=${MAX_CONCURRENT_STREAMS}
+      - STREAM_THROTTLE_SECONDS=${STREAM_THROTTLE_SECONDS}
+      - STREAM_DEDUP_WINDOW_SECONDS=${STREAM_DEDUP_WINDOW_SECONDS}
+    volumes:
+      - ./cv-service/ml_models:/app/ml_models
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 15s
+
+  nuxt:
+    build: .
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NUXT_SESSION_PASSWORD=${NUXT_SESSION_PASSWORD}
+      - CV_SERVICE_URL=http://cv-service:8100
+      - CV_API_KEY=${CV_API_KEY}
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_PUBLIC_ENDPOINT=${PUBLIC_URL}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_PRESIGNED_TTL=${MINIO_PRESIGNED_TTL}
+      # NOTE: ENCRYPTION_KEY intentionally not passed to Nuxt — Python encrypts via /credentials/encrypt
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cv-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/ssl:ro
+    depends_on:
+      - nuxt
+      - minio
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  minio-data:
