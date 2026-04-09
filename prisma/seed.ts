@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcrypt";
 
@@ -289,6 +289,29 @@ async function up() {
   await seedFullData(farmer1.id, "Farmer 1");
   await seedFullData(farmer2.id, "Farmer 2");
 
+  // Seed Knowledge Base
+  const diseases = [
+    { diseaseName: 'Fusarium wilt', diseaseNameUz: 'Fuzarioz so\'lishi', category: 'disease', symptoms: 'Yellowing and wilting of leaves, brown discoloration of vascular tissue', symptomsUz: 'Barglarning sarg\'ayishi va so\'lishi', treatment: 'Apply Fundazol 1.5 kg/ha. Remove infected plants. Rotate crops for 3-4 years.', treatmentUz: 'Fundazol 1.5 kg/ga qo\'llang. Kasallangan o\'simliklarni olib tashlang.', prevention: 'Use resistant varieties. Practice crop rotation. Ensure proper drainage.', severity: 'critical', cropTypes: ['cotton', 'melon', 'tomato'] },
+    { diseaseName: 'Alternaria leaf spot', diseaseNameUz: 'Alternarioz barg dog\'i', category: 'disease', symptoms: 'Dark brown to black concentric ring spots on leaves', treatment: 'Spray with chlorothalonil or mancozeb every 7-10 days', severity: 'high', cropTypes: ['tomato', 'potato', 'pepper'] },
+    { diseaseName: 'Powdery mildew', diseaseNameUz: 'Un shudring kasalligi', category: 'disease', symptoms: 'White powdery coating on leaves and stems', treatment: 'Apply sulfur-based fungicide or neem oil. Improve air circulation.', severity: 'medium', cropTypes: ['grape', 'cucumber', 'wheat'] },
+    { diseaseName: 'Wheat rust', diseaseNameUz: 'Bug\'doy zanglashi', category: 'disease', symptoms: 'Orange-brown pustules on leaves and stems', treatment: 'Apply propiconazole or tebuconazole fungicide at first sign', severity: 'high', cropTypes: ['wheat'] },
+    { diseaseName: 'Root rot', diseaseNameUz: 'Ildiz chirishi', category: 'disease', symptoms: 'Wilting despite adequate water, brown mushy roots', treatment: 'Improve drainage. Apply metalaxyl. Remove severely affected plants.', severity: 'critical', cropTypes: ['cotton', 'tomato'] },
+    { diseaseName: 'Spider mite', diseaseNameUz: 'O\'rgimchak kanasi', category: 'pest', symptoms: 'Tiny yellow spots on leaves, fine webbing on undersides', treatment: 'Spray with abamectin or bifenthrin. Release predatory mites.', severity: 'high', cropTypes: ['cotton', 'tomato', 'cucumber'] },
+    { diseaseName: 'Aphid infestation', diseaseNameUz: 'Shiralar tajovuzi', category: 'pest', symptoms: 'Clusters of small green/black insects on new growth, sticky honeydew', treatment: 'Apply imidacloprid or release ladybugs. Spray with neem oil.', severity: 'medium', cropTypes: ['cotton', 'wheat', 'vegetable'] },
+    { diseaseName: 'Cotton bollworm', diseaseNameUz: 'Paxta qurti', category: 'pest', symptoms: 'Holes in bolls and fruits, frass visible', treatment: 'Apply Bt (Bacillus thuringiensis) or spinosad. Use pheromone traps.', severity: 'critical', cropTypes: ['cotton', 'tomato'] },
+    { diseaseName: 'Bacterial blight', diseaseNameUz: 'Bakterial kuyish', category: 'disease', symptoms: 'Water-soaked lesions on leaves turning brown with yellow halos', treatment: 'Apply copper-based bactericide. Remove infected plant material.', severity: 'high', cropTypes: ['cotton', 'rice'] },
+    { diseaseName: 'Downy mildew', diseaseNameUz: 'Yolg\'on un shudring', category: 'disease', symptoms: 'Yellow patches on upper leaf surface, gray-purple fuzz underneath', treatment: 'Apply mancozeb or metalaxyl. Ensure good ventilation.', severity: 'high', cropTypes: ['melon', 'grape', 'cucumber'] }
+  ]
+
+  for (const disease of diseases) {
+    await prisma.knowledgeBase.upsert({
+      where: { diseaseName: disease.diseaseName },
+      update: disease,
+      create: disease
+    })
+  }
+  console.log('  ✅ Knowledge Base seeded: 10 entries')
+
   console.log("\n✅ Seed completed successfully!");
   console.log(`🔑 Password for all users: ${SEED_PASSWORD}`);
 }
@@ -309,7 +332,9 @@ async function down() {
       "Season",
       "Field",
       "Farm",
-      "User"
+      "User",
+      "CVModel",
+      "KnowledgeBase"
     RESTART IDENTITY CASCADE
   `);
 

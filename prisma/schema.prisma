@@ -16,6 +16,9 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   farms        Farm[]
+  cvModels     CVModel[]
+  connections  Connection[]
+  detections   Detection[]
 }
 
 model Farm {
@@ -43,6 +46,7 @@ model Field {
   droneFlights  DroneFlight[]
   recommendations Recommendation[]
   alerts        Alert[]
+  connections   Connection[]
 }
 
 model Season {
@@ -157,4 +161,122 @@ model Alert {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   field       Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+}
+
+model CVModel {
+  id           String        @id @default(cuid())
+  name         String
+  filename     String
+  originalName String
+  format       CvModelFormat @default(onnx)
+  cropType     String?
+  isDefault    Boolean       @default(false)
+  fileSize     Int
+  hash         String
+  metadata     Json?
+  userId       String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connections  Connection[]
+
+  @@index([userId])
+  @@index([userId, isDefault])
+}
+
+model Connection {
+  id               String              @id @default(cuid())
+  name             String
+  protocol         CvStreamProtocol
+  streamUrl        String
+  usernameEnc      String?
+  passwordEnc      String?
+  status           CvConnectionStatus  @default(idle)
+  lastFrameAt      DateTime?
+  lastDetectionAt  DateTime?
+  errorMessage     String?
+  reconnectAttempt Int                 @default(0)
+  modelId          String
+  userId           String
+  fieldId          String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  model            CVModel     @relation(fields: [modelId], references: [id], onDelete: Restrict)
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  field            Field?      @relation(fields: [fieldId], references: [id], onDelete: SetNull)
+  detections       Detection[]
+
+  @@index([userId, status])
+  @@index([modelId])
+}
+
+model Detection {
+  id             String              @id
+  className      String
+  category       CvDetectionCategory
+  confidence     Float
+  severity       CvDetectionSeverity
+  bbox           Json
+  snapshotKey    String?
+  thumbReady     Boolean             @default(false)
+  connectionId   String
+  userId         String
+  detectedAt     DateTime            @default(now())
+  lastSeenAt     DateTime            @default(now())
+
+  connection     Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, detectedAt(sort: Desc)])
+  @@index([connectionId, detectedAt(sort: Desc)])
+  @@index([className])
+  @@index([thumbReady, detectedAt])
+}
+
+model KnowledgeBase {
+  id            String   @id @default(cuid())
+  diseaseName   String   @unique
+  diseaseNameUz String?
+  category      String
+  symptoms      String
+  symptomsUz    String?
+  treatment     String
+  treatmentUz   String?
+  prevention    String?
+  preventionUz  String?
+  severity      String   @default("medium")
+  cropTypes     String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum CvModelFormat {
+  onnx
+}
+
+enum CvStreamProtocol {
+  rtsp
+  rtmp
+  http_mjpeg
+}
+
+enum CvConnectionStatus {
+  idle
+  active
+  disconnected
+  error
+}
+
+enum CvDetectionCategory {
+  disease
+  pest
+  weed
+}
+
+enum CvDetectionSeverity {
+  confirmed
+  likely
+  possible
 }
